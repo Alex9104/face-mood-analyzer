@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emotional Journey - Retirement Gift</title>
+    <title>Face Analysis Studio</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -33,20 +33,61 @@
             border-radius: 50%;
             background: #84fab0;
         }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .loading-spinner {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <header class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">Emotional Journey</h1>
-            <p class="text-xl text-gray-600">Create a memorable retirement gift with emotional analysis and music</p>
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Face Analysis Studio</h1>
+            <p class="text-xl text-gray-600">Face detection and emotion analysis tool</p>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Reference Photo Upload Section -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-semibold mb-4">Upload Reference Photo(s)</h2>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4">
+                    <span class="tooltip">
+                        Upload Reference Photo(s)
+                        <span class="tooltiptext">Upload clear photos of the person you want to track in other images</span>
+                    </span>
+                </h2>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-16 text-center h-64 flex flex-col items-center justify-center">
                     <i class="fas fa-user-circle text-4xl text-gray-400 mb-4"></i>
                     <p class="text-gray-600 mb-4">Upload one or more clear photos of the person to track</p>
                     <input type="file" multiple accept="image/*" class="hidden" id="reference-upload">
@@ -55,12 +96,18 @@
                         Select Reference Photo(s)
                     </button>
                     <div id="reference-preview" class="flex flex-wrap mt-4 gap-2"></div>
+                    <p id="reference-count" class="mt-2 text-sm text-gray-500">No photos uploaded</p>
                 </div>
             </div>
             <!-- Photo Upload Section -->
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4">Upload Photos</h2>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <h2 class="text-2xl font-semibold mb-4">
+                    <span class="tooltip">
+                        Upload Photos
+                        <span class="tooltiptext">Upload photos to analyze for face detection and emotion analysis</span>
+                    </span>
+                </h2>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-16 text-center h-64 flex flex-col items-center justify-center">
                     <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
                     <p class="text-gray-600 mb-4">Drag and drop your photos here or click to browse</p>
                     <input type="file" multiple accept="image/*" class="hidden" id="photo-upload">
@@ -68,57 +115,96 @@
                             class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
                         Select Photos
                     </button>
-                </div>
-            </div>
-            <!-- Analysis Section -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4">Emotion Analysis</h2>
-                <div id="analysis-results" class="space-y-4">
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-chart-bar text-4xl mb-2"></i>
-                        <p>Upload photos to see emotion analysis</p>
-                    </div>
+                    <div id="photo-preview" class="flex flex-wrap mt-4 gap-2"></div>
+                    <p id="photo-count" class="mt-2 text-sm text-gray-500">No photos uploaded</p>
                 </div>
             </div>
         </div>
 
-        <!-- Timeline Section -->
-        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-semibold mb-4">Emotional Timeline</h2>
-            <div id="timeline" class="space-y-4">
-                <div class="text-center text-gray-500">
-                    <i class="fas fa-clock text-4xl mb-2"></i>
-                    <p>Timeline will appear after analysis</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Generate Video Section -->
+        <!-- Status and Actions -->
         <div class="mt-8 text-center">
-            <button id="generate-btn" 
-                    class="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition disabled:opacity-50"
-                    disabled>
-                <i class="fas fa-video mr-2"></i>
-                Generate Video
-            </button>
+            <div id="analysis-status" class="mb-6 text-gray-500">
+                <p>Upload photos to begin analysis</p>
+            </div>
+
+            <div class="flex flex-col items-center space-y-6">
+                <!-- First Row -->
+                <button id="analyze-btn" 
+                        class="bg-blue-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-600 transition disabled:opacity-50 tooltip w-64"
+                        disabled>
+                    <i class="fas fa-play mr-2"></i>
+                    Start Analysis
+                    <span class="tooltiptext">Begin analyzing the uploaded photos</span>
+                </button>
+
+                <!-- Second Row -->
+                <div id="secondary-buttons" class="flex space-x-4 hidden">
+                    <button id="download-marked-btn" 
+                            class="bg-purple-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-purple-600 transition disabled:opacity-50 tooltip"
+                            disabled>
+                        <i class="fas fa-download mr-2"></i>
+                        Download Marked Photos
+                        <span class="tooltiptext">Download photos with detected faces</span>
+                    </button>
+
+                    <button id="generate-btn" 
+                            class="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition disabled:opacity-50 tooltip"
+                            disabled>
+                        <i class="fas fa-video mr-2"></i>
+                        Generate Video
+                        <span class="tooltiptext">Create a video compilation of analyzed photos</span>
+                    </button>
+
+                    <button id="download-video-btn" 
+                            class="bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 tooltip hidden"
+                            disabled>
+                        <i class="fas fa-download mr-2"></i>
+                        Download Video
+                        <span class="tooltiptext">Download the generated video</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Video Preview Section -->
         <div id="video-preview" class="mt-8 hidden">
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4">Generated Video</h2>
+                <h2 class="text-2xl font-semibold mb-4">
+                    <span class="tooltip">
+                        Generated Video
+                        <span class="tooltiptext">Preview and download the generated video compilation</span>
+                    </span>
+                </h2>
                 <div class="aspect-w-16 aspect-h-9">
-                    <video id="preview-player" controls class="w-full rounded-lg">
+                    <video id="preview-player" controls class="w-full rounded-lg" preload="auto">
                         Your browser does not support the video tag.
                     </video>
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 py-4 border-t border-gray-200">
+            <div class="text-center text-sm text-gray-500">
+                <p>© 2024 Akshay Chikhalkar</p>
+                <p class="mt-2">
+                    <a href="https://github.com/akshaychikhalkar/face-mood-analyzer" target="_blank" class="text-blue-500 hover:text-blue-700 transition">
+                        <i class="fab fa-github mr-1"></i>View on GitHub
+                    </a>
+                </p>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // Handle reference photo upload
         let referenceFiles = [];
+        let uploadedPhotos = [];
+        let analyzedPhotos = [];
+        let videoGenerated = false;
+        let videoPath = null;
+        let isAnalyzing = false;
+
+        // Handle reference photo upload
         document.getElementById('reference-upload').addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -133,12 +219,15 @@
             `;
             
             // Upload each reference photo
-            for (const file of files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
                 const formData = new FormData();
                 formData.append('file', file);
                 
                 try {
-                    const response = await fetch('/upload_reference', {
+                    // Add is_first parameter for the first file
+                    const isFirst = i === 0;
+                    const response = await fetch(`/upload_reference?is_first=${isFirst}`, {
                         method: 'POST',
                         body: formData
                     });
@@ -157,7 +246,7 @@
                 }
             }
             
-            // Update preview
+            // Update preview and count
             previewDiv.innerHTML = '';
             referenceFiles.forEach(file => {
                 const img = document.createElement('img');
@@ -165,11 +254,13 @@
                 img.className = 'w-16 h-16 object-cover rounded border';
                 previewDiv.appendChild(img);
             });
+            document.getElementById('reference-count').textContent = `${referenceFiles.length} photo(s) uploaded`;
+            updateAnalyzeButtonState();
         });
 
         // Handle main photo upload
         document.getElementById('photo-upload').addEventListener('change', async (e) => {
-            const files = e.target.files;
+            const files = Array.from(e.target.files);
             if (files.length === 0) return;
             if (referenceFiles.length === 0) {
                 alert('Please upload at least one reference photo first.');
@@ -183,7 +274,8 @@
             }
 
             // Show loading state
-            document.getElementById('analysis-results').innerHTML = `
+            const previewDiv = document.getElementById('photo-preview');
+            previewDiv.innerHTML = `
                 <div class="text-center">
                     <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
                     <p class="mt-2">Uploading photos...</p>
@@ -203,14 +295,63 @@
                 }
                 
                 const uploadData = await uploadResponse.json();
+                uploadedPhotos = Array.from(files);
 
-                // Show analyzing state
-                document.getElementById('analysis-results').innerHTML = `
-                    <div class="text-center">
-                        <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
-                        <p class="mt-2">Analyzing photos...</p>
+                // Update preview and count
+                previewDiv.innerHTML = '';
+                for (let i = 0; i < Math.min(uploadedPhotos.length, 6); i++) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(uploadedPhotos[i]);
+                    img.className = 'w-16 h-16 object-cover rounded border';
+                    previewDiv.appendChild(img);
+                }
+                if (uploadedPhotos.length > 6) {
+                    const moreText = document.createElement('p');
+                    moreText.className = 'text-sm text-gray-500 mt-2';
+                    moreText.textContent = `+${uploadedPhotos.length - 6} more`;
+                    previewDiv.appendChild(moreText);
+                }
+                document.getElementById('photo-count').textContent = `${uploadedPhotos.length} photo(s) uploaded`;
+
+                // Update status and enable analyze button
+                document.getElementById('analysis-status').innerHTML = `
+                    <p>Photos uploaded successfully. Click "Start Analysis" to begin processing.</p>
+                `;
+                updateAnalyzeButtonState();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                previewDiv.innerHTML = `
+                    <div class="text-center text-red-500">
+                        <i class="fas fa-exclamation-circle text-4xl"></i>
+                        <p class="mt-2">Error: ${error.message}</p>
                     </div>
                 `;
+            }
+        });
+
+        function updateAnalyzeButtonState() {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.disabled = isAnalyzing || referenceFiles.length === 0 || uploadedPhotos.length === 0;
+        }
+
+        // Handle analyze button
+        document.getElementById('analyze-btn').addEventListener('click', async () => {
+            if (isAnalyzing) return;
+            
+            try {
+                isAnalyzing = true;
+                updateAnalyzeButtonState();
+
+                // Show analyzing state
+                document.getElementById('analysis-status').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin loading-spinner mb-3"></i>
+                        <p class="text-lg">Analyzing photos...</p>
+                    </div>
+                `;
+                document.getElementById('secondary-buttons').classList.add('hidden');
+                document.getElementById('download-video-btn').classList.add('hidden');
 
                 // Analyze photos
                 const response = await fetch('/analyze', {
@@ -223,70 +364,43 @@
                 }
                 
                 const data = await response.json();
+                analyzedPhotos = data.marked_photos;
 
-                // Update analysis results
-                updateAnalysisResults(data.emotion_stats);
-                
-                // Enable generate button if we have results
-                if (data.marked_photos && data.marked_photos.length > 0) {
-                    document.getElementById('generate-btn').disabled = false;
-                }
-                
-                // Show video preview if available
-                if (data.video_path) {
-                    const videoPreview = document.getElementById('video-preview');
-                    const videoPlayer = document.getElementById('preview-player');
-                    videoPreview.classList.remove('hidden');
-                    videoPlayer.src = `/download/${data.video_path}`;
-                }
+                // Update status and enable buttons
+                document.getElementById('analysis-status').innerHTML = `
+                    <p><i class="fas fa-check text-green-500 text-xl"></i> Analysis completed successfully. ${analyzedPhotos.length} photos processed.</p>
+                `;
+                document.getElementById('secondary-buttons').classList.remove('hidden');
+                document.getElementById('download-marked-btn').disabled = false;
+                document.getElementById('generate-btn').disabled = false;
                 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('analysis-results').innerHTML = `
-                    <div class="text-center text-red-500">
-                        <i class="fas fa-exclamation-circle text-4xl"></i>
-                        <p class="mt-2">Error: ${error.message}</p>
-                    </div>
+                document.getElementById('analysis-status').innerHTML = `
+                    <p class="text-red-500"><i class="fas fa-exclamation-circle text-xl"></i> Error: ${error.message}</p>
                 `;
+                document.getElementById('secondary-buttons').classList.add('hidden');
+                document.getElementById('download-video-btn').classList.add('hidden');
+            } finally {
+                isAnalyzing = false;
+                updateAnalyzeButtonState();
             }
         });
 
-        // Update analysis results
-        function updateAnalysisResults(stats) {
-            const resultsDiv = document.getElementById('analysis-results');
-            if (!stats || Object.keys(stats).length === 0) {
-                resultsDiv.innerHTML = `
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-chart-bar text-4xl mb-2"></i>
-                        <p>No emotion data available</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">';
-            for (const [emotion, count] of Object.entries(stats)) {
-                const percentage = Math.round((count / Object.values(stats).reduce((a, b) => a + b, 0)) * 100);
-                html += `
-                    <div class="bg-gray-50 p-4 rounded-lg text-center">
-                        <h3 class="font-semibold text-lg mb-2">${emotion}</h3>
-                        <div class="text-2xl font-bold text-blue-500">${percentage}%</div>
-                        <div class="text-sm text-gray-500">${count} photos</div>
-                    </div>
-                `;
-            }
-            html += '</div>';
-            resultsDiv.innerHTML = html;
-        }
-
-        // Handle generate button click
+        // Handle video generation
         document.getElementById('generate-btn').addEventListener('click', async () => {
-            const button = document.getElementById('generate-btn');
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
-            
             try {
-                const response = await fetch('/analyze', {
+                // Show loading state
+                document.getElementById('analysis-status').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin loading-spinner mb-3"></i>
+                        <p class="text-lg">Generating video...</p>
+                    </div>
+                `;
+                document.getElementById('generate-btn').disabled = true;
+
+                // Generate video
+                const response = await fetch('/generate_video', {
                     method: 'POST'
                 });
                 
@@ -296,55 +410,132 @@
                 }
                 
                 const data = await response.json();
+                videoPath = data.video_path;
+                videoGenerated = true;
+
+                // Show video preview
+                const videoPreview = document.getElementById('video-preview');
+                const videoPlayer = document.getElementById('preview-player');
+                videoPreview.classList.remove('hidden');
                 
-                if (data.video_path) {
-                    const videoPreview = document.getElementById('video-preview');
-                    const videoPlayer = document.getElementById('preview-player');
-                    videoPreview.classList.remove('hidden');
-                    videoPlayer.src = `/download/${data.video_path}`;
-                }
+                // Set video source with proper path
+                const videoSource = `/videos/${videoPath}`;
+                console.log('Loading video from:', videoSource);
+                videoPlayer.src = videoSource;
+                
+                // Add event listeners for video loading
+                videoPlayer.addEventListener('loadedmetadata', () => {
+                    console.log('Video metadata loaded');
+                    videoPlayer.controls = true;
+                });
+                
+                videoPlayer.addEventListener('error', (e) => {
+                    console.error('Error loading video:', videoPlayer.error);
+                    document.getElementById('analysis-status').innerHTML = `
+                        <p class="text-red-500">
+                            <i class="fas fa-exclamation-circle text-xl"></i> 
+                            Error loading video: ${videoPlayer.error.message}
+                        </p>
+                    `;
+                });
+                
+                // Force video to load
+                videoPlayer.load();
+                
+                // Show download video button
+                document.getElementById('download-video-btn').classList.remove('hidden');
+                document.getElementById('download-video-btn').disabled = false;
+
+                // Update status
+                document.getElementById('analysis-status').innerHTML = `
+                    <p><i class="fas fa-check text-green-500 text-xl"></i> Video generated successfully!</p>
+                `;
             } catch (error) {
-                console.error('Error generating video:', error);
-                alert(`Error generating video: ${error.message}`);
+                console.error('Error:', error);
+                document.getElementById('analysis-status').innerHTML = `
+                    <p class="text-red-500"><i class="fas fa-exclamation-circle text-xl"></i> Error: ${error.message}</p>
+                `;
+                document.getElementById('video-preview').classList.add('hidden');
+                document.getElementById('download-video-btn').classList.add('hidden');
             } finally {
-                button.disabled = false;
-                button.innerHTML = '<i class="fas fa-video mr-2"></i>Generate Video';
+                document.getElementById('generate-btn').disabled = false;
             }
         });
 
-        // Handle clear button click
-        document.getElementById('clear-btn')?.addEventListener('click', async () => {
+        // Handle download marked photos button
+        document.getElementById('download-marked-btn').addEventListener('click', async () => {
+            if (!analyzedPhotos || analyzedPhotos.length === 0) {
+                alert('No analyzed photos available for download');
+                return;
+            }
+
             try {
-                const response = await fetch('/clear', {
-                    method: 'POST'
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to clear data');
-                }
-                
-                const data = await response.json();
-                
-                // Reset UI
-                referenceFiles = [];
-                document.getElementById('reference-preview').innerHTML = '';
-                document.getElementById('photo-upload').value = '';
-                document.getElementById('analysis-results').innerHTML = `
-                    <div class="text-center text-gray-500">
-                        <i class="fas fa-chart-bar text-4xl mb-2"></i>
-                        <p>Upload photos to see emotion analysis</p>
+                // Show downloading state
+                document.getElementById('analysis-status').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin loading-spinner mb-3"></i>
+                        <p class="text-lg">Preparing download...</p>
                     </div>
                 `;
-                document.getElementById('generate-btn').disabled = true;
-                document.getElementById('video-preview').classList.add('hidden');
+
+                // Create a zip file containing all marked photos
+                const zip = new JSZip();
                 
-                alert('All data cleared successfully');
+                // Download each marked photo and add to zip
+                for (const photo of analyzedPhotos) {
+                    const photoResponse = await fetch(`/download/${photo}`);
+                    if (!photoResponse.ok) {
+                        throw new Error(`Failed to download photo: ${photo}`);
+                    }
+                    const photoBlob = await photoResponse.blob();
+                    zip.file(photo, photoBlob);
+                }
+                
+                // Generate and download the zip file
+                const content = await zip.generateAsync({type: 'blob'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'marked_photos.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Update status
+                document.getElementById('analysis-status').innerHTML = `
+                    <p><i class="fas fa-check text-green-500 text-xl"></i> Photos downloaded successfully</p>
+                `;
+                
             } catch (error) {
-                console.error('Error clearing data:', error);
-                alert(`Error clearing data: ${error.message}`);
+                console.error('Error downloading photos:', error);
+                document.getElementById('analysis-status').innerHTML = `
+                    <p class="text-red-500"><i class="fas fa-exclamation-circle text-xl"></i> Error downloading photos: ${error.message}</p>
+                `;
+            }
+        });
+
+        // Handle download video button
+        document.getElementById('download-video-btn').addEventListener('click', async () => {
+            if (!videoPath) return;
+            
+            try {
+                const response = await fetch(`/download/${videoPath}`);
+                if (!response.ok) throw new Error('Failed to download video');
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'face_analysis_video.mp4';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error downloading video:', error);
+                alert('Failed to download video: ' + error.message);
             }
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
 </body>
 </html> 

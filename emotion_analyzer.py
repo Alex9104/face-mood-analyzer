@@ -10,6 +10,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 import time
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -321,30 +322,71 @@ class EmotionAnalyzer:
 
         return marked_files
 
-    def create_video_from_photos(self, photo_paths, output_dir='output/videos', fps=1):
-        """Create a video from the processed photos"""
-        if not photo_paths:
-            return None
+    def create_video_from_photos(self, image_files, output_dir, fps=2):
+        """Create a video from a list of photos."""
+        try:
+            if not image_files:
+                logger.error("No images provided for video creation")
+                return False
 
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, 'output_video.mp4')
+            # Ensure output directory exists
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, 'output_video.mp4')
 
-        # Get the first image to determine dimensions
-        first_img = cv2.imread(photo_paths[0])
-        height, width = first_img.shape[:2]
+            # Read first image to get dimensions
+            first_image = cv2.imread(image_files[0])
+            if first_image is None:
+                logger.error(f"Could not read first image: {image_files[0]}")
+                return False
+            
+            height, width = first_image.shape[:2]
 
-        # Create video writer
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+            # Define the codec and create VideoWriter object
+            # Use H264 codec for web compatibility
+            if os.name == 'nt':  # Windows
+                fourcc = cv2.VideoWriter_fourcc(*'H264')
+            else:  # Linux/Mac
+                fourcc = cv2.VideoWriter_fourcc(*'avc1')
+            
+            out = cv2.VideoWriter(
+                output_path,
+                fourcc,
+                fps,
+                (width, height)
+            )
 
-        # Add each photo to the video
-        for photo_path in photo_paths:
-            img = cv2.imread(photo_path)
-            if img is not None:
-                out.write(img)
+            if not out.isOpened():
+                logger.error("Failed to create video writer")
+                return False
 
-        out.release()
-        return output_path
+            try:
+                # Write each image to video
+                for image_file in image_files:
+                    frame = cv2.imread(image_file)
+                    if frame is not None:
+                        # Hold each frame for desired duration (duplicate frames)
+                        for _ in range(int(fps * 2)):  # 2 seconds per image
+                            out.write(frame)
+                    else:
+                        logger.warning(f"Could not read image: {image_file}")
+
+                # Release the video writer
+                out.release()
+                
+                # Verify the video was created
+                if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                    logger.info(f"Video created successfully at {output_path}")
+                    return True
+                else:
+                    logger.error("Video file was not created or is empty")
+                    return False
+
+            finally:
+                out.release()
+
+        except Exception as e:
+            logger.error(f"Error creating video: {str(e)}")
+            return False
 
     def generate_emotion_statistics(self, photo_paths):
         """Generate emotion statistics from the processed photos"""
