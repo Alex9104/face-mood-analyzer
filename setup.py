@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="face-mood-analyzer",
-    version="0.1.2",  # This will be updated by the workflow
+    version="0.1.3",  # This will be updated by the workflow
     author="Your Name",
     author_email="your.email@example.com",
     description="AI-powered emotion analyzer that detects faces in photos and generates corresponding music",
