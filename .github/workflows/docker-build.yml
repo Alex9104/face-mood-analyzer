@@ -79,9 +79,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
+      - name: Verify PyPI token
+        run: |
+          echo "Checking PyPI token..."
+          if [ -z "${{ secrets.PYPI_TOKEN }}" ]; then
+            echo "Error: PYPI_TOKEN is not set"
+            exit 1
+          fi
+          echo "PyPI token is set"
+
       - name: Publish to PyPI
         run: |
-          twine upload dist/*
+          echo "Uploading to PyPI..."
+          python -m twine upload --verbose dist/*
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }} 
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }} 
