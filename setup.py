@@ -5,18 +5,18 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="face-mood-analyzer",
-    version="0.1.1",  # This will be updated by the workflow
+    version="0.1.2",  # This will be updated by the workflow
     author="Your Name",
     author_email="your.email@example.com",
     description="AI-powered emotion analyzer that detects faces in photos and generates corresponding music",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/face-mood-analyzer",
+    url="https://github.com/akshaychikhalkar/face-mood-analyzer",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
+        "License :: MIT License",  # Updated to SPDX format
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
@@ -38,4 +38,5 @@ setup(
         "torchvision==0.15.2",
         "transformers==4.31.0",
     ],
+    license="MIT",  # Added explicit license field
 ) 

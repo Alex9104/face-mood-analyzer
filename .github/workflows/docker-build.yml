@@ -3,8 +3,6 @@ name: Build, Publish and Release
 on:
   push:
     branches: [ master ]
-    tags:
-      - 'v*'  # Trigger on version tags
   pull_request:
     branches: [ master ]
 
@@ -29,12 +27,15 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
-          else
-            VERSION=$(python -c "import re; print(re.search('version=\"([^\"]+)\"', open('setup.py').read()).group(1))")
-          fi
+          VERSION=$(python -c "import re; print(re.search('version=\"([^\"]+)\"', open('setup.py').read()).group(1))")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "v${{ steps.get_version.outputs.version }}" -m "Release v${{ steps.get_version.outputs.version }}"
+          git push origin "v${{ steps.get_version.outputs.version }}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -64,9 +65,10 @@ jobs:
           python -m build
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
+          name: Release v${{ steps.get_version.outputs.version }}
+          tag_name: v${{ steps.get_version.outputs.version }}
           files: |
             dist/*.whl
             dist/*.tar.gz
@@ -75,9 +77,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
-        if: startsWith(github.ref, 'refs/tags/')
         run: |
           twine upload dist/*
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }} 
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }} 
