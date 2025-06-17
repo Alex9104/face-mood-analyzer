@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.env
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+uploads/*
+output/*
+!uploads/.gitkeep
+!output/.gitkeep
+
+# Logs
+*.log
+
+# Local development
+.DS_Store
+Thumbs.db

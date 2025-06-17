@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotional Journey - Retirement Gift</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #84fab0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Emotional Journey</h1>
+            <p class="text-xl text-gray-600">Create a memorable retirement gift with emotional analysis and music</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Reference Photo Upload Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4">Upload Reference Photo(s)</h2>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <i class="fas fa-user-circle text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600 mb-4">Upload one or more clear photos of the person to track</p>
+                    <input type="file" multiple accept="image/*" class="hidden" id="reference-upload">
+                    <button onclick="document.getElementById('reference-upload').click()" 
+                            class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition">
+                        Select Reference Photo(s)
+                    </button>
+                    <div id="reference-preview" class="flex flex-wrap mt-4 gap-2"></div>
+                </div>
+            </div>
+            <!-- Photo Upload Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4">Upload Photos</h2>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600 mb-4">Drag and drop your photos here or click to browse</p>
+                    <input type="file" multiple accept="image/*" class="hidden" id="photo-upload">
+                    <button onclick="document.getElementById('photo-upload').click()" 
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                        Select Photos
+                    </button>
+                </div>
+            </div>
+            <!-- Analysis Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4">Emotion Analysis</h2>
+                <div id="analysis-results" class="space-y-4">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-chart-bar text-4xl mb-2"></i>
+                        <p>Upload photos to see emotion analysis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4">Emotional Timeline</h2>
+            <div id="timeline" class="space-y-4">
+                <div class="text-center text-gray-500">
+                    <i class="fas fa-clock text-4xl mb-2"></i>
+                    <p>Timeline will appear after analysis</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Video Section -->
+        <div class="mt-8 text-center">
+            <button id="generate-btn" 
+                    class="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition disabled:opacity-50"
+                    disabled>
+                <i class="fas fa-video mr-2"></i>
+                Generate Video
+            </button>
+        </div>
+
+        <!-- Video Preview Section -->
+        <div id="video-preview" class="mt-8 hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4">Generated Video</h2>
+                <div class="aspect-w-16 aspect-h-9">
+                    <video id="preview-player" controls class="w-full rounded-lg">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle reference photo upload
+        let referenceFiles = [];
+        document.getElementById('reference-upload').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            
+            // Show loading state
+            const previewDiv = document.getElementById('reference-preview');
+            previewDiv.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+                    <p class="mt-2">Uploading reference photos...</p>
+                </div>
+            `;
+            
+            // Upload each reference photo
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const response = await fetch('/upload_reference', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to upload reference photo');
+                    }
+                    
+                    const data = await response.json();
+                    referenceFiles.push(file);
+                } catch (error) {
+                    console.error('Error uploading reference photo:', error);
+                    alert(`Error uploading ${file.name}: ${error.message}`);
+                    continue;
+                }
+            }
+            
+            // Update preview
+            previewDiv.innerHTML = '';
+            referenceFiles.forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'w-16 h-16 object-cover rounded border';
+                previewDiv.appendChild(img);
+            });
+        });
+
+        // Handle main photo upload
+        document.getElementById('photo-upload').addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length === 0) return;
+            if (referenceFiles.length === 0) {
+                alert('Please upload at least one reference photo first.');
+                return;
+            }
+
+            // Create FormData for photos
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files[]', file);
+            }
+
+            // Show loading state
+            document.getElementById('analysis-results').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+                    <p class="mt-2">Uploading photos...</p>
+                </div>
+            `;
+
+            try {
+                // Upload photos
+                const uploadResponse = await fetch('/upload_photos', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!uploadResponse.ok) {
+                    const errorData = await uploadResponse.json();
+                    throw new Error(errorData.error || 'Failed to upload photos');
+                }
+                
+                const uploadData = await uploadResponse.json();
+
+                // Show analyzing state
+                document.getElementById('analysis-results').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+                        <p class="mt-2">Analyzing photos...</p>
+                    </div>
+                `;
+
+                // Analyze photos
+                const response = await fetch('/analyze', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to analyze photos');
+                }
+                
+                const data = await response.json();
+
+                // Update analysis results
+                updateAnalysisResults(data.emotion_stats);
+                
+                // Enable generate button if we have results
+                if (data.marked_photos && data.marked_photos.length > 0) {
+                    document.getElementById('generate-btn').disabled = false;
+                }
+                
+                // Show video preview if available
+                if (data.video_path) {
+                    const videoPreview = document.getElementById('video-preview');
+                    const videoPlayer = document.getElementById('preview-player');
+                    videoPreview.classList.remove('hidden');
+                    videoPlayer.src = `/download/${data.video_path}`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('analysis-results').innerHTML = `
+                    <div class="text-center text-red-500">
+                        <i class="fas fa-exclamation-circle text-4xl"></i>
+                        <p class="mt-2">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Update analysis results
+        function updateAnalysisResults(stats) {
+            const resultsDiv = document.getElementById('analysis-results');
+            if (!stats || Object.keys(stats).length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-chart-bar text-4xl mb-2"></i>
+                        <p>No emotion data available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">';
+            for (const [emotion, count] of Object.entries(stats)) {
+                const percentage = Math.round((count / Object.values(stats).reduce((a, b) => a + b, 0)) * 100);
+                html += `
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <h3 class="font-semibold text-lg mb-2">${emotion}</h3>
+                        <div class="text-2xl font-bold text-blue-500">${percentage}%</div>
+                        <div class="text-sm text-gray-500">${count} photos</div>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        // Handle generate button click
+        document.getElementById('generate-btn').addEventListener('click', async () => {
+            const button = document.getElementById('generate-btn');
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to generate video');
+                }
+                
+                const data = await response.json();
+                
+                if (data.video_path) {
+                    const videoPreview = document.getElementById('video-preview');
+                    const videoPlayer = document.getElementById('preview-player');
+                    videoPreview.classList.remove('hidden');
+                    videoPlayer.src = `/download/${data.video_path}`;
+                }
+            } catch (error) {
+                console.error('Error generating video:', error);
+                alert(`Error generating video: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-video mr-2"></i>Generate Video';
+            }
+        });
+
+        // Handle clear button click
+        document.getElementById('clear-btn')?.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/clear', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to clear data');
+                }
+                
+                const data = await response.json();
+                
+                // Reset UI
+                referenceFiles = [];
+                document.getElementById('reference-preview').innerHTML = '';
+                document.getElementById('photo-upload').value = '';
+                document.getElementById('analysis-results').innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-chart-bar text-4xl mb-2"></i>
+                        <p>Upload photos to see emotion analysis</p>
+                    </div>
+                `;
+                document.getElementById('generate-btn').disabled = true;
+                document.getElementById('video-preview').classList.add('hidden');
+                
+                alert('All data cleared successfully');
+            } catch (error) {
+                console.error('Error clearing data:', error);
+                alert(`Error clearing data: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html> 
