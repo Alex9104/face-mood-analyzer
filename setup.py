@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="face-mood-analyzer",
-    version="0.1.5",  # This will be updated by the workflow
+    version="1.0.0",
     author="Akshay Chikhalkar",
     author_email="akshaychikhalkar15@gmail.com",
     description="AI-powered emotion analyzer that detects faces in photos and generates corresponding music",
@@ -14,21 +14,22 @@ setup(
     url="https://github.com/akshaychikhalkar/face-mood-analyzer",
     packages=find_packages(),
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",  # Fixed classifier
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: End Users/Desktop",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Scientific/Engineering :: Image Recognition",
+        "Topic :: Multimedia :: Sound/Audio :: Analysis",
     ],
     python_requires=">=3.8",
     install_requires=[
         "tensorflow==2.12.0",
         "numpy==1.23.5",
         "deepface==0.0.75",
-        "opencv-python==4.8.0.76",
+        "opencv-python-headless==4.8.0.76",
         "pillow==10.0.0",
         "flask==2.3.3",
         "python-dotenv==1.0.0",
@@ -38,5 +39,5 @@ setup(
         "torchvision==0.15.2",
         "transformers==4.31.0",
     ],
-    license="MIT",  # Added explicit license field
+    license="MIT",
 ) 
