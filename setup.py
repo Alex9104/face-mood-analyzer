@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="face-mood-analyzer",
-    version="1.0.0",
+    version="1.0.1",
     author="Akshay Chikhalkar",
     author_email="akshaychikhalkar15@gmail.com",
     description="AI-powered emotion analyzer that detects faces in photos and generates corresponding music",
