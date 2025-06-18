@@ -32,3 +32,4 @@ output/*
 # Local development
 .DS_Store
 Thumbs.db
+venv.ps1
